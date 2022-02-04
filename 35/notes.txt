@@ -1,0 +1,5 @@
+Events will run syncronously.
+
+1. Create a new class that inherits from the node EventEmitter
+
+2. Create a small web server and listen to the event it emits
