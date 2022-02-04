@@ -1,0 +1,102 @@
+Analysis of the event loop using callback
+
+Aim: Find out order of code execution
+
+------------------------------------------------
+
+Part 1:
+Order when no code is in an event loop
+
+(Gets executed immediately) Top-level code
+(Middle) Timer
+(Middle) Immediate Timer
+(Last) Read .txt file (takes time to read)
+
+------------------------------------------------
+
+Part 2:
+Order when some code is in a callback
+
+Not in an event loop:
+(Gets executed immediately) Top-level code
+(Middle) Timer finished
+(Middle) Immediate timer finished
+(Last) Input/Output finished
+
+Code inside a callback function:
+(1) Immediate timer inside callback finished (executed first because event loop pauses in the 2nd phase)
+(2) First timer inside callback finished
+(3) Second timer inside callback finished
+
+------------------------------------------------
+
+Part 3: adding process.nextTick()
+
+Order when some code is in a callback
+
+Not in an event loop:
+(Gets executed immediately) Top-level code
+(Middle) Timer finished
+(Middle) Immediate timer finished
+(Last) Input/Output finished
+
+Code inside a callback function:
+(1) Process tick finished (executed first because callback functions in the microtasks queue are executed first after each phase)
+(2) Immediate timer inside callback finished
+(3) First timer inside callback finished
+(4) Second timer inside callback finished
+
+------------------------------------------------
+
+Part 4: Threadpool
+
+Use an encryption function
+See how much time each operation takes
+
+(Gets executed immediately) Top-level code
+(Middle) Timer finished
+(Middle) Immediate timer finished
+(Last) Input/Output finished
+
+Code inside a callback function:
+(1) Process tick finished
+(2) Immediate timer inside callback finished
+(3) First timer inside callback finished
+(4) Password encryption                     <---------
+(5) Second timer inside callback finished
+
+Part 4.1: More than one encryption
+
+[...]
+(1) Process tick finished
+(2) Immediate timer inside callback finished
+(3) First timer inside callback finished
+
+The order (a-d) varies each time we run the event loop, but each process takes approx. the same amount of time (4 threadpools are used)
+(4) 1559 Password encrypted b 
+(4) 1570 Password encrypted d
+(4) 1589 Password encrypted c
+(4) 1664 Password encrypted a
+
+(5) Second timer inside callback finished
+
+Part 4.2: Changing threadpool size
+
+... from 4-1 means that the encryptions happen one after another (which takes more time)
+
+Part 4.3: Blocking the event loop by using the syncronous version of crypto
+
+[...]
+
+No longer run in the event loop and thus not offloaded to the threadpool
+They happen in a syncronous way
+(5) 1217 Password encrypted a
+(6) 2402 Password encrypted b
+(7) 3564 Password encrypted c
+(8) 4718 Password encrypted d
+
+Timers appear after password encryptions (even though they were set to 0 seconds, they had to wait for almost 5 seconds...)
+(9) Process tick finished
+(10) Immediate timer inside callback finished
+(11) First timer inside callback finished
+(12) Second timer inside callback finished
