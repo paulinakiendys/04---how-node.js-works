@@ -1,0 +1,21 @@
+Node wraps module code into a wrapper function
+
+1st argument: exports
+2nd: require
+3rd: module (incl. module.exports)
+4th: filename
+5th: directory
+
+Wrapper function template:
+
+'(function (exports, require, module, __filename, __dirname) { ',
+  '\n});'
+
+Caching
+
+Result:
+Top-level code (was only loaded and fired once due to caching)
+Function text
+Function text
+Function text
+
