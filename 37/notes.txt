@@ -1,0 +1,27 @@
+Different ways of reading a large text file and sending it to the client
+
+Solution 1: Read the file into a variable and send it to the client
+
+Problem: node will have to load the entire file to memory and then send the data
+In the LR this can lead to the the node process running out of resources
+
+Everything is written at once into a variable
+Entire piece of data is sent back to client
+
+Solution 2: Streams
+
+Streaming the file:
+(1) We read one piece of the file
+(2) When it's available we send it to the client using .write()
+(3) Next piece of data available...
+(4) Next piece is sent etc...
+
+Data is sent directly to the client in chunks
+
+Problem: readable stream is faster than sending the result with writable stream which overwhelms the reaponse stream (backpressure)
+Backpressure happens when the response can't send data as fast as it is received from the file
+
+Solution 3: Pipe operator
+
+Pipes the output of a readable stream into the input of a writable stream.
+Fixes backpressure because it automatically handles speed of data coming in and out.
